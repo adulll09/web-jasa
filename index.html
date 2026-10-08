@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overheating Club.id | Premium Laptop Service</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS CDN & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgDark: '#080808',
+                        cardDark: '#111111',
+                        secondary: '#171717',
+                        textPrimary: '#F5F1E8',
+                        textSecondary: '#9A9A9A',
+                        accentRed: '#C62828',
+                        darkRed: '#7A1515',
+                        gold: '#B99A5B',
+                        borderWhite: 'rgba(255,255,255,0.08)'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Noto Serif SC', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for subtle animations & aesthetic -->
+    <style>
+        body { background-color: #080808; color: #F5F1E8; }
+        
+        /* Chinese Seal/Stamp effect */
+        .seal {
+            font-family: 'Noto Serif SC', serif;
+            color: #C62828;
+            border: 2px solid #C62828;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 4px;
+            font-weight: 900;
+            line-height: 1;
+            box-shadow: inset 0 0 0 1px rgba(198, 40, 40, 0.2);
+            opacity: 0.9;
+        }
+
+        /* Ink wash subtle background */
+        .bg-ink-wash {
+            background-image: radial-gradient(circle at 80% 20%, rgba(122, 21, 21, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+        }
+
+        /* Smooth Hide/Show classes */
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); transition: all 0.3s ease-out; }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bottom-sheet-active { transform: translateY(0); }
+        
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #080808; }
+        ::-webkit-scrollbar-thumb { background: #171717; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb:hover { background: #C62828; }
+        
+        /* Hidden utilities */
+        .hidden-safely { display: none !important; }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden selection:bg-accentRed selection:text-white relative">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full top-0 z-40 transition-all duration-300 bg-transparent border-b border-transparent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="text-xl font-bold tracking-wider flex items-center gap-2">
+                        <span class="text-textSecondary text-sm font-normal"></span> 
+                        overheating club.id
+                    </div>
+                    <span class="seal text-xs">修</span>
+                </div>
+                <!-- Links (Desktop) -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8 text-sm text-textSecondary">
+                        <a href="#home" class="hover:text-textPrimary transition-colors">Home</a>
+                        <a href="#katalog" class="hover:text-textPrimary transition-colors">Layanan</a>
+                        <a href="#faq" class="hover:text-textPrimary transition-colors">Cara Booking</a>
+                    </div>
+                </div>
+                <!-- CTA -->
+                <div>
+                    <a href="#katalog" class="flex items-center gap-2 text-sm bg-transparent border border-borderWhite px-4 py-2 hover:border-accentRed hover:text-accentRed transition-all rounded">
+                        Booking Sekarang <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-[90vh] flex items-center bg-ink-wash border-b border-borderWhite overflow-hidden">
+        <!-- Minimal Grid Pattern -->
+        <div class="absolute inset-0" style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.5;"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-20">
+            <div class="max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary border border-borderWhite text-xs text-textSecondary mb-6 uppercase tracking-widest">
+                    <i data-lucide="cpu" class="w-3 h-3 text-accentRed"></i> Laptop Care & Service
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-6">
+                    Rawat Laptopmu.<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-textPrimary to-textSecondary">Bikin Performa</span><br>
+                    <span class="font-serif italic text-accentRed font-light">Kembali Prima.</span>
+                </h1>
+                <p class="text-lg text-textSecondary mb-8 max-w-lg leading-relaxed">
+                    Layanan cleaning, repaste, instalasi sistem, upgrade hardware, dan perawatan laptop dengan proses yang rapi dan profesional.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#katalog" class="bg-textPrimary text-bgDark px-6 py-3 rounded font-medium hover:bg-gray-200 transition-colors flex items-center gap-2">
+                        Lihat Semua Layanan
+                    </a>
+                    <a href="#katalog" class="bg-secondary border border-borderWhite text-textPrimary px-6 py-3 rounded font-medium hover:border-accentRed transition-colors">
+                        Booking Sekarang
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Decorative Elements -->
+            <div class="absolute right-10 bottom-20 hidden lg:block opacity-20">
+                <div class="text-[12rem] font-serif leading-none select-none writing-vertical-rl text-borderWhite">CARE</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Bar -->
+    <section class="border-b border-borderWhite bg-cardDark overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-8 md:gap-4 text-sm text-textSecondary min-w-max">
+            <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-accentRed"></i> Deep Cleaning</div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-accentRed"></i> Arctic MX-4</div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-accentRed"></i> Driver Lengkap</div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-accentRed"></i> Backup Data</div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-accentRed"></i> Bisa Booking WhatsApp</div>
+        </div>
+    </section>
+
+    <!-- Section Katalog -->
+    <section id="katalog" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12">
+                <h2 class="text-xs text-accentRed tracking-widest uppercase mb-2 font-semibold">Menu Jasa Servis & Perawatan</h2>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <h3 class="text-3xl font-bold">Pilih layanan yang sesuai<br>dengan kebutuhan laptopmu.</h3>
+                    <!-- Search Bar -->
+                    <div class="relative w-full md:w-72">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textSecondary"></i>
+                        <input type="text" id="searchInput" placeholder="Cari layanan..." class="w-full bg-secondary border border-borderWhite rounded py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-accentRed transition-colors text-textPrimary placeholder-textSecondary">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex gap-4 overflow-x-auto pb-4 mb-8 scrollbar-hide text-sm border-b border-borderWhite" id="categoryFilters">
+                <!-- Rendered via JS -->
+            </div>
+
+            <!-- Grid Catalog -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="servicesGrid">
+                <!-- Cards rendered via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Your Booking Ticket Section (Empty State handling via JS) -->
+    <section id="ticketSection" class="py-24 bg-cardDark border-y border-borderWhite hidden-safely">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold mb-2">Tiket Booking Kamu</h2>
+            <p class="text-textSecondary mb-8 text-sm">Simpan tiket ini atau langsung kirim ke WhatsApp admin kami.</p>
+            
+            <!-- Ticket Container -->
+            <div id="ticketContainer" class="bg-bgDark border border-borderWhite p-6 md:p-8 rounded-lg text-left relative overflow-hidden mx-auto max-w-md shadow-2xl">
+                <!-- Rendered via JS -->
+            </div>
+            
+            <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="sendToWhatsApp()" class="bg-[#25D366] text-bgDark px-6 py-3 rounded font-semibold hover:bg-[#20b858] transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> Kirim ke WhatsApp →
+                </button>
+                <button onclick="clearTicket()" class="bg-transparent border border-borderWhite text-textSecondary px-6 py-3 rounded hover:text-accentRed hover:border-accentRed transition-colors">
+                    Selesai / Buat Baru
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section (Kenapa Pilih Kami) -->
+    <section class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold mb-10 text-center">Kenapa Pilih Kami?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Cards -->
+                <div class="p-6 bg-cardDark border border-borderWhite rounded group hover:border-borderWhite/30 transition-all">
+                    <div class="text-accentRed font-serif text-2xl mb-4">01</div>
+                    <h4 class="font-bold mb-2 group-hover:text-accentRed transition-colors">Deep Cleaning</h4>
+                    <p class="text-sm text-textSecondary leading-relaxed">Membersihkan debu dan kotoran hingga ke kisi-kisi dan bagian internal terdalam.</p>
+                </div>
+                <div class="p-6 bg-cardDark border border-borderWhite rounded group hover:border-borderWhite/30 transition-all">
+                    <div class="text-accentRed font-serif text-2xl mb-4">02</div>
+                    <h4 class="font-bold mb-2 group-hover:text-accentRed transition-colors">Arctic MX-4</h4>
+                    <p class="text-sm text-textSecondary leading-relaxed">Kami hanya menggunakan thermal paste premium Arctic MX-4 untuk performa dingin maksimal.</p>
+                </div>
+                <div class="p-6 bg-cardDark border border-borderWhite rounded group hover:border-borderWhite/30 transition-all">
+                    <div class="text-accentRed font-serif text-2xl mb-4">03</div>
+                    <h4 class="font-bold mb-2 group-hover:text-accentRed transition-colors">Data Awareness</h4>
+                    <p class="text-sm text-textSecondary leading-relaxed">Layanan backup data tersedia dan dipastikan aman sebelum proses instal ulang sistem.</p>
+                </div>
+                <div class="p-6 bg-cardDark border border-borderWhite rounded group hover:border-borderWhite/30 transition-all">
+                    <div class="text-accentRed font-serif text-2xl mb-4">04</div>
+                    <h4 class="font-bold mb-2 group-hover:text-accentRed transition-colors">Transparent Service</h4>
+                    <p class="text-sm text-textSecondary leading-relaxed">Harga, detail layanan, dan pengerjaan dijelaskan secara detail sejak awal. Tanpa biaya tersembunyi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-24 bg-cardDark border-t border-borderWhite">
+        <div class="max-w-3xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-10 text-center">FAQ</h2>
+            <div class="space-y-4" id="faqContainer">
+                <!-- Rendered via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-bgDark border-t border-borderWhite py-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center text-center">
+            <div class="mb-6 flex flex-col items-center">
+                <div class="text-xl font-bold tracking-wider mb-2">overheating club.id <span class="text-sm font-normal text-textSecondary">by adn store</span></div>
+                <span class="seal">修</span>
+            </div>
+            <p class="text-sm text-textSecondary mb-6">Laptop Care & Service<br>Cleaning • Repair • Upgrade • Software</p>
+            <div class="flex gap-6 mb-10 text-sm text-textSecondary">
+                <a href="#" class="hover:text-textPrimary">WhatsApp</a>
+                <a href="#" class="hover:text-textPrimary">Instagram</a>
+                <a href="#" class="hover:text-textPrimary">TikTok</a>
+            </div>
+            <div class="text-xs text-textSecondary border-t border-borderWhite w-full pt-6">
+                &copy; 2026 overheating club.id by adn store. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALS OVERLAYS -->
+    
+    <!-- 1. Detail Service Modal -->
+    <div id="detailModalOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden-safely flex items-end md:items-center justify-center transition-opacity opacity-0">
+        <div id="detailModal" class="bg-cardDark border border-borderWhite w-full md:w-[480px] rounded-t-xl md:rounded-xl p-6 relative bottom-sheet md:transform-none">
+            <button onclick="closeDetailModal()" class="absolute right-4 top-4 text-textSecondary hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div id="detailModalContent"></div>
+        </div>
+    </div>
+
+    <!-- 2. Booking Form Modal -->
+    <div id="formModalOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden-safely flex items-end md:items-center justify-center transition-opacity opacity-0 overflow-y-auto">
+        <div id="formModal" class="bg-cardDark border border-borderWhite w-full md:w-[480px] rounded-t-xl md:rounded-xl p-6 relative bottom-sheet md:transform-none mt-20 md:mt-0 mb-auto md:mb-auto">
+            <button onclick="closeFormModal()" class="absolute right-4 top-4 text-textSecondary hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h3 class="text-xl font-bold mb-1">Form Booking</h3>
+            <p class="text-sm text-textSecondary mb-6" id="formServiceName">Layanan: -</p>
+            
+            <form id="bookingForm" class="space-y-4" onsubmit="handleBookingSubmit(event)">
+                <div>
+                    <label class="block text-xs text-textSecondary mb-1">Nama Lengkap *</label>
+                    <input type="text" id="b_name" placeholder="Contoh: Abdan Fatih" class="w-full bg-secondary border border-borderWhite rounded px-3 py-2 text-sm focus:border-accentRed outline-none text-white">
+                    <p id="err_name" class="text-accentRed text-xs mt-1 hidden-safely">Nama tidak boleh kosong.</p>
+                </div>
+                <div>
+                    <label class="block text-xs text-textSecondary mb-1">Nomor WhatsApp *</label>
+                    <input type="number" id="b_wa" placeholder="Contoh: 08xxxxxxxxxx" class="w-full bg-secondary border border-borderWhite rounded px-3 py-2 text-sm focus:border-accentRed outline-none text-white">
+                    <p id="err_wa" class="text-accentRed text-xs mt-1 hidden-safely">Nomor WhatsApp tidak valid.</p>
+                </div>
+                <div>
+                    <label class="block text-xs text-textSecondary mb-1">Jenis & Tipe Laptop *</label>
+                    <input type="text" id="b_laptop" placeholder="Contoh: Lenovo V14 G5" class="w-full bg-secondary border border-borderWhite rounded px-3 py-2 text-sm focus:border-accentRed outline-none text-white">
+                    <p id="err_laptop" class="text-accentRed text-xs mt-1 hidden-safely">Jenis laptop tidak boleh kosong.</p>
+                </div>
+                
+                <!-- Dynamic Fields Container -->
+                <div id="dynamicFieldsContainer" class="hidden-safely space-y-4 border-l-2 border-accentRed pl-3 py-1">
+                    <!-- Injected via JS -->
+                </div>
+
+                <div>
+                    <label class="block text-xs text-textSecondary mb-1">Keluhan / Catatan</label>
+                    <textarea id="b_notes" rows="3" placeholder="Contoh: Laptop panas dan kipas berisik" class="w-full bg-secondary border border-borderWhite rounded px-3 py-2 text-sm focus:border-accentRed outline-none text-white resize-none"></textarea>
+                </div>
+                
+                <button type="submit" class="w-full bg-textPrimary text-bgDark py-3 rounded font-semibold hover:bg-gray-200 transition-colors mt-4">
+                    Buat Booking
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-cardDark border border-borderWhite text-white px-4 py-3 rounded shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-[60] flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-[#25D366]"></i>
+        <div>
+            <div class="font-bold text-sm">Booking berhasil dibuat</div>
+            <div class="text-xs text-textSecondary">Ticket kamu sudah siap.</div>
+        </div>
+    </div>
+
+    <!-- Icons Initialization script & Main logic -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
