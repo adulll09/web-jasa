@@ -1,11 +1,18 @@
 // ==========================================
-// KONFIGURASI ADMIN & DEFAULT SEED DATA
+// 1. KONFIGURASI ADMIN & CLOUD SUPABASE
 // ==========================================
 const WHATSAPP_NUMBER = "628814553545";
+
+// Jika sudah punya URL & Anon Key Supabase, tempel di dalam tanda kutip di bawah ini:
+const SUPABASE_URL = "https://uvsgbjdlpanjzqxxtfvq.supabase.co"; 
+const SUPABASE_ANON_KEY = "sb_publishable_iizxcRPPkar_LTLxExFKEA_ZbyU4LuH";
+
 const DB_STORAGE_KEY = "overheating_club_db_v1";
 const SESSION_KEY = "overheating_club_session_v1";
 
-// Data Awal Katalog Layanan (Tabel B: services)
+// ==========================================
+// 2. DATA AWAL KATALOG LAYANAN & FAQ
+// ==========================================
 const initialServicesData = [
     {
         id: "s1", categoryId: "paket", categoryName: "Paket Hemat", name: "Paket Reborn",
@@ -105,102 +112,166 @@ const faqData = [
 ];
 
 // ==========================================
-// DATABASE ENGINE (6 TABEL UTAMA: A - F)
+// 3. FUNGSI SINKRONISASI CLOUD SUPABASE
+// ==========================================
+let isSavingToCloud = false;
+
+function isCloudConfigured() {
+    return typeof SUPABASE_URL === "string" && SUPABASE_URL.includes("supabase.co") && !SUPABASE_URL.includes("ISI_URL");
+}
+
+async function syncFromCloud() {
+    if (!isCloudConfigured() || isSavingToCloud) return;
+    try {
+        const res = await fetch(`${SUPABASE_URL.trim()}/rest/v1/app_store?id=eq.main_db&select=data`, {
+            headers: {
+                "apikey": SUPABASE_ANON_KEY.trim(),
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`,
+                "Cache-Control": "no-cache"
+            }
+        });
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (rows && rows.length > 0 && rows[0].data) {
+            localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(rows[0].data));
+            renderNavbarAuth();
+            renderServices();
+
+            const activeEl = document.activeElement;
+            const isTyping = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.tagName === "SELECT");
+            if (!isTyping) {
+                const admOverlay = document.getElementById("adminDashboardOverlay");
+                const cliOverlay = document.getElementById("clientDashboardOverlay");
+                if (admOverlay && !admOverlay.classList.contains("hidden-safely")) renderAdminDashboard();
+                if (cliOverlay && !cliOverlay.classList.contains("hidden-safely")) renderClientDashboard();
+            }
+        } else {
+            await pushToCloud(OverheatingDB.getDB());
+        }
+    } catch (err) {
+        console.warn("Cloud Sync Info:", err);
+    }
+}
+
+async function pushToCloud(dbData) {
+    if (!isCloudConfigured()) return;
+    isSavingToCloud = true;
+    try {
+        await fetch(`${SUPABASE_URL.trim()}/rest/v1/app_store`, {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY.trim(),
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY.trim()}`,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+            },
+            body: JSON.stringify({
+                id: "main_db",
+                data: dbData,
+                updated_at: new Date().toISOString()
+            })
+        });
+    } catch (err) {
+        console.warn("Gagal mengirim ke Cloud:", err);
+    } finally {
+        isSavingToCloud = false;
+    }
+}
+
+// ==========================================
+// 4. DATABASE ENGINE (6 TABEL UTAMA: A - F)
 // ==========================================
 const OverheatingDB = {
+    getDefaultSeed() {
+        return {
+            users: [
+                {
+                    id: "u_admin",
+                    username: "admin",
+                    password_hash: "admin123",
+                    full_name: "Admin Overheating Club",
+                    whatsapp: "08814553545",
+                    role: "admin",
+                    points: 999,
+                    created_at: "2026-10-01T08:00:00.000Z"
+                },
+                {
+                    id: "u_client1",
+                    username: "abdan",
+                    password_hash: "123456",
+                    full_name: "Abdan Fatih",
+                    whatsapp: "081234567890",
+                    role: "client",
+                    points: 120,
+                    created_at: "2026-10-10T10:00:00.000Z"
+                }
+            ],
+            services: initialServicesData,
+            bookings: [
+                {
+                    booking_code: "BK-20261016-501",
+                    user_id: "u_client1",
+                    customer_name: "Abdan Fatih",
+                    whatsapp: "081234567890",
+                    laptop_model: "Lenovo V14 G5",
+                    service_name: "Paket Reborn",
+                    addons: [{ id: "s9", name: "Pasang / Upgrade RAM & SSD", priceDisplay: "Rp 30.000", extraLabel: "Komponen", extraValue: "SSD" }],
+                    voucher_code: null,
+                    discount_amount: 0,
+                    total_price: 120000,
+                    total_price_display: "Rp 120.000",
+                    points_earned: 120,
+                    status: "proses",
+                    payment_status: "unpaid",
+                    customer_notes: "Sekalian pasang SSD NVMe 512GB bawa sendiri, kipas agak berisik.",
+                    admin_notes: "Fan & heatsink sudah dibersihkan, pasta Arctic MX-4 sudah terpasang. Sedang lanjut instalasi Windows 11.",
+                    created_at: "2026-10-16T09:30:00.000Z"
+                }
+            ],
+            vouchers_rewards: [
+                { id: "vr1", title: "Voucher Diskon Servis Rp15.000", points_cost: 50, type: "discount", discount_value: 15000, stock: 25 },
+                { id: "vr2", title: "Voucher Gratis Light Clean", points_cost: 40, type: "discount", discount_value: 15000, stock: 30 },
+                { id: "vr3", title: "Voucher Diskon Servis Rp30.000", points_cost: 90, type: "discount", discount_value: 30000, stock: 15 },
+                { id: "vr4", title: "Stiker Eksklusif Overheating Club", points_cost: 25, type: "merchandise", discount_value: 0, stock: 50 },
+                { id: "vr5", title: "Mousepad Gaming Minimalist Dark", points_cost: 200, type: "merchandise", discount_value: 0, stock: 5 }
+            ],
+            user_redemptions: [
+                {
+                    id: "red_1",
+                    user_id: "u_client1",
+                    reward_id: "vr1",
+                    reward_title: "Voucher Diskon Servis Rp15.000",
+                    reward_type: "discount",
+                    discount_value: 15000,
+                    unique_code: "OHC-15K-992",
+                    is_used: false,
+                    redeemed_at: "2026-10-15T14:20:00.000Z"
+                }
+            ],
+            finances: [
+                {
+                    id: "fin_1",
+                    type: "expense",
+                    amount: 135000,
+                    description: "Beli Stok 2 Tube Thermal Paste Arctic MX-4",
+                    booking_code: null,
+                    transaction_date: "2026-10-12T11:00:00.000Z"
+                },
+                {
+                    id: "fin_2",
+                    type: "income",
+                    amount: 90000,
+                    description: "Servis Paket Reborn (ThinkPad X280)",
+                    booking_code: "BK-20261014-112",
+                    transaction_date: "2026-10-14T16:45:00.000Z"
+                }
+            ]
+        };
+    },
+
     init() {
         if (!localStorage.getItem(DB_STORAGE_KEY)) {
-            const seedData = {
-                // TABEL A: users
-                users: [
-                    {
-                        id: "u_admin",
-                        username: "admin",
-                        password_hash: "admin123",
-                        full_name: "Admin Overheating Club",
-                        whatsapp: "08814553545",
-                        role: "admin",
-                        points: 999,
-                        created_at: "2026-10-01T08:00:00.000Z"
-                    },
-                    {
-                        id: "u_client1",
-                        username: "abdan",
-                        password_hash: "123456",
-                        full_name: "Abdan Fatih",
-                        whatsapp: "081234567890",
-                        role: "client",
-                        points: 120,
-                        created_at: "2026-10-10T10:00:00.000Z"
-                    }
-                ],
-                // TABEL B: services
-                services: initialServicesData,
-                // TABEL C: bookings
-                bookings: [
-                    {
-                        booking_code: "BK-20261016-501",
-                        user_id: "u_client1",
-                        customer_name: "Abdan Fatih",
-                        whatsapp: "081234567890",
-                        laptop_model: "Lenovo V14 G5",
-                        service_name: "Paket Reborn",
-                        addons: [{ id: "s9", name: "Pasang / Upgrade RAM & SSD", priceDisplay: "Rp 30.000", extraLabel: "Komponen", extraValue: "SSD" }],
-                        voucher_code: null,
-                        discount_amount: 0,
-                        total_price: 120000,
-                        total_price_display: "Rp 120.000",
-                        points_earned: 120,
-                        status: "proses", // 'pending', 'proses', 'done', 'cancelled'
-                        payment_status: "unpaid", // 'unpaid', 'paid'
-                        customer_notes: "Sekalian pasang SSD NVMe 512GB bawa sendiri, kipas agak berisik.",
-                        admin_notes: "Fan & heatsink sudah dibersihkan, pasta Arctic MX-4 sudah terpasang. Sedang lanjut instalasi Windows 11.",
-                        created_at: "2026-10-16T09:30:00.000Z"
-                    }
-                ],
-                // TABEL D: vouchers_rewards
-                vouchers_rewards: [
-                    { id: "vr1", title: "Voucher Diskon Servis Rp15.000", points_cost: 50, type: "discount", discount_value: 15000, stock: 25 },
-                    { id: "vr2", title: "Voucher Gratis Light Clean", points_cost: 40, type: "discount", discount_value: 15000, stock: 30 },
-                    { id: "vr3", title: "Voucher Diskon Servis Rp30.000", points_cost: 90, type: "discount", discount_value: 30000, stock: 15 },
-                    { id: "vr4", title: "Stiker Eksklusif Overheating Club", points_cost: 25, type: "merchandise", discount_value: 0, stock: 50 },
-                    { id: "vr5", title: "Mousepad Gaming Minimalist Dark", points_cost: 200, type: "merchandise", discount_value: 0, stock: 5 }
-                ],
-                // TABEL E: user_redemptions
-                user_redemptions: [
-                    {
-                        id: "red_1",
-                        user_id: "u_client1",
-                        reward_id: "vr1",
-                        reward_title: "Voucher Diskon Servis Rp15.000",
-                        reward_type: "discount",
-                        discount_value: 15000,
-                        unique_code: "OHC-15K-992",
-                        is_used: false,
-                        redeemed_at: "2026-10-15T14:20:00.000Z"
-                    }
-                ],
-                // TABEL F: finances
-                finances: [
-                    {
-                        id: "fin_1",
-                        type: "expense",
-                        amount: 135000,
-                        description: "Beli Stok 2 Tube Thermal Paste Arctic MX-4",
-                        booking_code: null,
-                        transaction_date: "2026-10-12T11:00:00.000Z"
-                    },
-                    {
-                        id: "fin_2",
-                        type: "income",
-                        amount: 90000,
-                        description: "Servis Paket Reborn (ThinkPad X280)",
-                        booking_code: "BK-20261014-112",
-                        transaction_date: "2026-10-14T16:45:00.000Z"
-                    }
-                ]
-            };
-            localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(seedData));
+            localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(this.getDefaultSeed()));
         }
     },
 
@@ -209,8 +280,9 @@ const OverheatingDB = {
         return JSON.parse(localStorage.getItem(DB_STORAGE_KEY));
     },
 
-    saveDB(data) {
+    async saveDB(data) {
         localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(data));
+        await pushToCloud(data);
     },
 
     getCurrentUser() {
@@ -227,7 +299,7 @@ const OverheatingDB = {
 };
 
 // ==========================================
-// STATE & HELPERS
+// 5. STATE & HELPERS
 // ==========================================
 let currentFilter = "all";
 let currentSearch = "";
@@ -250,7 +322,7 @@ const escapeHTML = (str) => {
 };
 
 // ==========================================
-// INITIALIZATION
+// 6. INITIALIZATION
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     OverheatingDB.init();
@@ -261,6 +333,9 @@ document.addEventListener("DOMContentLoaded", () => {
     checkExistingBooking();
     setupNavbarScroll();
     setupSearch();
+
+    syncFromCloud();
+    setInterval(syncFromCloud, 8000);
 });
 
 function setupNavbarScroll() {
@@ -277,7 +352,7 @@ function setupNavbarScroll() {
 }
 
 // ==========================================
-// AUTHENTICATION LOGIC (LOGIN / REGISTER / SESSION)
+// 7. AUTHENTICATION LOGIC
 // ==========================================
 function renderNavbarAuth() {
     const user = OverheatingDB.getCurrentUser();
@@ -386,13 +461,9 @@ function showAuthAlert(msg, isError = true) {
     alertBox.classList.remove("hidden-safely");
 }
 
-function fillDemoAuth(username, password) {
-    document.getElementById("l_username").value = username;
-    document.getElementById("l_password").value = password;
-}
-
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
+    await syncFromCloud();
     const uname = document.getElementById("l_username").value.trim().toLowerCase();
     const pass = document.getElementById("l_password").value;
 
@@ -411,8 +482,9 @@ function handleLogin(e) {
     showToast(`Selamat datang, ${user.full_name}!`, user.role === 'admin' ? "Anda masuk sebagai Administrator." : `Saldo poin kamu: ${user.points} Poin.`);
 }
 
-function handleRegister(e) {
+async function handleRegister(e) {
     e.preventDefault();
+    await syncFromCloud();
     const name = document.getElementById("r_name").value.trim();
     const uname = document.getElementById("r_username").value.trim().toLowerCase();
     const wa = document.getElementById("r_wa").value.trim();
@@ -440,12 +512,12 @@ function handleRegister(e) {
         full_name: name,
         whatsapp: wa,
         role: "client",
-        points: 20, // Bonus daftar baru 20 poin
+        points: 20,
         created_at: new Date().toISOString()
     };
 
     db.users.push(newUser);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     OverheatingDB.setCurrentUser(newUser.id);
 
     document.getElementById("registerForm").reset();
@@ -460,21 +532,8 @@ function handleLogout() {
     showToast("Berhasil Keluar", "Sampai jumpa kembali!");
 }
 
-// Placeholder untuk Step 2 & Step 3
-function openDashboard() {
-    const user = OverheatingDB.getCurrentUser();
-    if (!user) {
-        openAuthModal('login');
-        return;
-    }
-    showToast(
-        user.role === 'admin' ? "Panel Admin Siap Dibangun!" : "Dashboard Member Siap Dibangun!",
-        "Lanjut ke Step 2 untuk membuka tampilan Dashboard penuh."
-    );
-}
-
 // ==========================================
-// KATALOG & FAQ RENDER (MENGAMBIL DARI TABEL B: services)
+// 8. KATALOG & FAQ RENDER
 // ==========================================
 function renderFilters() {
     const container = document.getElementById("categoryFilters");
@@ -577,7 +636,7 @@ function toggleFaq(index) {
 }
 
 // ==========================================
-// MODAL & BOOKING LOGIC (TERINTEGRASI TABEL C & E)
+// 9. MODAL & BOOKING LOGIC
 // ==========================================
 function openDetailModal(id) {
     selectedServiceId = id;
@@ -652,7 +711,6 @@ function openBookingForm() {
     document.getElementById("formServiceName").innerText = `${s.name} (${getDisplayPrice(s)})`;
     hideErrors();
 
-    // Auto-fill & Notice jika sudah login
     const noticeEl = document.getElementById("bookingMemberNotice");
     const voucherContainer = document.getElementById("voucherSelectionContainer");
     const voucherSelect = document.getElementById("b_voucher");
@@ -668,7 +726,6 @@ function openBookingForm() {
             <div class="text-textSecondary mt-0.5">Pesanan ini otomatis masuk ke Live Tracker akunmu.</div>
         `;
 
-        // Cek Voucher Diskon milik user di Tabel E (user_redemptions)
         const myVouchers = db.user_redemptions.filter(r => r.user_id === user.id && !r.is_used && r.reward_type === "discount");
         if (myVouchers.length > 0) {
             voucherSelect.innerHTML = `<option value="">-- Tidak Pakai Voucher --</option>` + myVouchers.map(v => `
@@ -692,7 +749,6 @@ function openBookingForm() {
         voucherContainer.classList.add("hidden-safely");
     }
 
-    // Dynamic Fields
     const dynContainer = document.getElementById("dynamicFieldsContainer");
     dynContainer.innerHTML = "";
     dynContainer.classList.add("hidden-safely");
@@ -718,7 +774,6 @@ function openBookingForm() {
         dynContainer.classList.remove("hidden-safely");
     }
 
-    // Multi-Select Add-Ons
     const addonsContainer = document.getElementById("addonsSelectionContainer");
     const addonsList = document.getElementById("addonsList");
     addonsList.innerHTML = "";
@@ -804,7 +859,6 @@ function updateTotalPrice() {
         }
     });
 
-    // Cek Potongan Voucher
     const voucherSelect = document.getElementById("b_voucher");
     let discountAmount = 0;
     if (voucherSelect && voucherSelect.value) {
@@ -844,7 +898,7 @@ function hideErrors() {
     document.querySelectorAll('[id^="err_"]').forEach(el => el.classList.add("hidden-safely"));
 }
 
-function handleBookingSubmit(e) {
+async function handleBookingSubmit(e) {
     e.preventDefault();
     hideErrors();
     
@@ -859,6 +913,7 @@ function handleBookingSubmit(e) {
     if(!wa || !/^[0-9+\-\s]{9,16}$/.test(wa)) { document.getElementById("err_wa").classList.remove("hidden-safely"); isValid = false; }
     if(!laptop) { document.getElementById("err_laptop").classList.remove("hidden-safely"); isValid = false; }
     
+    await syncFromCloud();
     const db = OverheatingDB.getDB();
     const s = db.services.find(x => x.id === selectedServiceId);
     let dynamicVal = "";
@@ -897,13 +952,11 @@ function handleBookingSubmit(e) {
     const { discountAmount, finalTotal, priceDisplay, pointsEarned } = updateTotalPrice();
     const user = OverheatingDB.getCurrentUser();
 
-    // Generate Booking Code
     const d = new Date();
     const dateStr = d.getFullYear().toString() + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0');
     const rnd = Math.floor(Math.random() * 900) + 100;
     const bookingId = `BK-${dateStr}-${rnd}`;
 
-    // 1. Buat Record Baru untuk Tabel C (bookings)
     const newBookingRecord = {
         booking_code: bookingId,
         user_id: user ? user.id : null,
@@ -928,15 +981,13 @@ function handleBookingSubmit(e) {
 
     db.bookings.unshift(newBookingRecord);
 
-    // 2. Tandai Voucher sebagai Terpakai di Tabel E (user_redemptions) jika dipakai
     if (voucherCode && user) {
         const redemption = db.user_redemptions.find(r => r.unique_code === voucherCode && r.user_id === user.id);
         if (redemption) redemption.is_used = true;
     }
 
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
 
-    // Simpan ke tampilan tiket aktif
     currentBookingState = newBookingRecord;
     localStorage.setItem("overheating_booking", JSON.stringify(currentBookingState));
 
@@ -951,7 +1002,7 @@ function handleBookingSubmit(e) {
 }
 
 // ==========================================
-// TICKET RENDER & WHATSAPP
+// 10. TICKET RENDER & WHATSAPP
 // ==========================================
 function checkExistingBooking() {
     const saved = localStorage.getItem("overheating_booking");
@@ -1114,9 +1165,6 @@ Mohon konfirmasi jadwal untuk penyerahan unit. Terima kasih!`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// ==========================================
-// TOAST NOTIFICATION
-// ==========================================
 function showToast(title = "Berhasil", desc = "Data telah disimpan.") {
     document.getElementById("toastTitle").innerText = title;
     document.getElementById("toastDesc").innerText = desc;
@@ -1129,11 +1177,12 @@ function showToast(title = "Berhasil", desc = "Data telah disimpan.") {
 }
 
 // ==========================================
-// CLIENT DASHBOARD LOGIC (STEP 2)
+// 11. CLIENT DASHBOARD LOGIC (STEP 2)
 // ==========================================
 let activeClientTab = "status";
 
-function openDashboard() {
+async function openDashboard() {
+    await syncFromCloud();
     const user = OverheatingDB.getCurrentUser();
     if (!user) {
         openAuthModal('login');
@@ -1141,26 +1190,20 @@ function openDashboard() {
     }
 
     if (user.role === "admin") {
-        // Akan kita isi di Step 3 (Panel Admin)
-        if (typeof openAdminDashboard === "function") {
-            openAdminDashboard();
-        } else {
-            showToast("Mode Admin Aktif", "Ketik 'Lanjut Step 3' untuk memasang Panel Admin lengkap!");
-        }
+        openAdminDashboard();
         return;
     }
 
-    // Buka Dashboard Client
     renderClientDashboard();
     const overlay = document.getElementById("clientDashboardOverlay");
     overlay.classList.remove("hidden-safely");
-    document.body.style.overflow = "hidden"; // Kunci scroll halaman belakang
+    document.body.style.overflow = "hidden";
 }
 
 function closeClientDashboard() {
     const overlay = document.getElementById("clientDashboardOverlay");
     overlay.classList.add("hidden-safely");
-    document.body.style.overflow = ""; // Kembalikan scroll
+    document.body.style.overflow = "";
     renderNavbarAuth();
 }
 
@@ -1198,7 +1241,6 @@ function renderClientDashboard() {
     lucide.createIcons();
 }
 
-// 1. Render Status Pengerjaan Laptop (Pending -> Proses -> Done)
 function renderClientBookings(user) {
     const db = OverheatingDB.getDB();
     const container = document.getElementById("cd_bookingsList");
@@ -1220,9 +1262,7 @@ function renderClientBookings(user) {
 
     container.innerHTML = myBookings.map(b => {
         const st = (b.status || "pending").toLowerCase();
-        
-        // Stepper Progress Calculation
-        const step1Active = true; // Pending selalu dilewati
+        const step1Active = true;
         const step2Active = st === "proses" || st === "done";
         const step3Active = st === "done";
 
@@ -1250,7 +1290,6 @@ function renderClientBookings(user) {
 
         return `
             <div class="bg-cardDark border border-borderWhite rounded-xl p-6 space-y-5 hover:border-borderWhite/30 transition-all">
-                <!-- Top Info -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-borderWhite">
                     <div>
                         <div class="flex items-center gap-2">
@@ -1269,7 +1308,6 @@ function renderClientBookings(user) {
                     </div>
                 </div>
 
-                <!-- Visual Stepper (Pending -> Proses -> Done) -->
                 ${st !== 'cancelled' ? `
                 <div class="grid grid-cols-3 gap-2 pt-1">
                     <div class="flex flex-col">
@@ -1290,10 +1328,8 @@ function renderClientBookings(user) {
                 </div>
                 ` : ''}
 
-                <!-- Detail Addons & Catatan Teknisi -->
                 <div class="space-y-3">
                     ${addonsList ? `<div class="flex flex-wrap gap-1.5">${addonsList}</div>` : ''}
-                    
                     <div class="bg-secondary/80 border-l-2 border-accentRed p-3.5 rounded-r-lg">
                         <div class="text-[11px] uppercase tracking-wider text-accentRed font-bold mb-1 flex items-center gap-1.5">
                             <i data-lucide="wrench" class="w-3.5 h-3.5"></i> Laporan / Catatan Teknisi:
@@ -1302,7 +1338,6 @@ function renderClientBookings(user) {
                     </div>
                 </div>
 
-                <!-- Bottom Action & Price -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-borderWhite/60">
                     <div>
                         <span class="text-xs text-textSecondary">Total Estimasi: </span>
@@ -1345,11 +1380,8 @@ function askAdminBookingWA(bookingCode) {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
-// 2. Render Katalog Tukar Poin & Dompet Voucher (Tabel D & E)
 function renderClientRewards(user) {
     const db = OverheatingDB.getDB();
-    
-    // Render Dompet Voucher milik User
     const myVouchersContainer = document.getElementById("cd_myVouchersList");
     const myRedemptions = db.user_redemptions.filter(r => r.user_id === user.id);
 
@@ -1383,7 +1415,6 @@ function renderClientRewards(user) {
         `).join("");
     }
 
-    // Render Katalog Penukaran Poin
     const catalogContainer = document.getElementById("cd_rewardsCatalog");
     catalogContainer.innerHTML = db.vouchers_rewards.map(vr => {
         const enoughPoints = user.points >= vr.points_cost;
@@ -1419,38 +1450,27 @@ function renderClientRewards(user) {
     }).join("");
 }
 
-function handleRedeemReward(rewardId) {
+async function handleRedeemReward(rewardId) {
     const db = OverheatingDB.getDB();
     const currentUser = OverheatingDB.getCurrentUser();
     if (!currentUser) return;
 
     const userIdx = db.users.findIndex(u => u.id === currentUser.id);
     const rewardIdx = db.vouchers_rewards.findIndex(r => r.id === rewardId);
-
     if (userIdx === -1 || rewardIdx === -1) return;
 
     const user = db.users[userIdx];
     const reward = db.vouchers_rewards[rewardIdx];
 
-    if (reward.stock <= 0) {
-        showToast("Gagal Menukar", "Maaf, stok reward ini sudah habis.");
-        return;
-    }
-    if (user.points < reward.points_cost) {
-        showToast("Poin Belum Cukup", `Kamu membutuhkan ${reward.points_cost} poin untuk menukar item ini.`);
-        return;
-    }
+    if (reward.stock <= 0 || user.points < reward.points_cost) return;
 
-    // Potong poin & kurangi stok
     user.points -= reward.points_cost;
     reward.stock -= 1;
 
-    // Generate Kode Unik Voucher/Klaim
     const prefix = reward.type === "discount" ? "DISC" : "GIFT";
     const rnd = Math.floor(Math.random() * 9000) + 1000;
     const uniqueCode = `OHC-${prefix}-${rnd}`;
 
-    // Simpan ke Tabel E (user_redemptions)
     db.user_redemptions.unshift({
         id: "red_" + Date.now(),
         user_id: user.id,
@@ -1463,12 +1483,11 @@ function handleRedeemReward(rewardId) {
         redeemed_at: new Date().toISOString()
     });
 
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderClientDashboard();
     showToast("Penukaran Berhasil!", `${reward.title} berhasil diklaim dengan kode: ${uniqueCode}`);
 }
 
-// 3. Render Katalog Cepat di dalam Dashboard
 function renderClientQuickCatalog() {
     const db = OverheatingDB.getDB();
     const container = document.getElementById("cd_quickCatalog");
@@ -1492,7 +1511,6 @@ function renderClientQuickCatalog() {
     `).join("");
 }
 
-// 4. Pengaturan Akun Member
 function populateClientSettings(user) {
     document.getElementById("cs_username").value = user.username;
     document.getElementById("cs_name").value = user.full_name;
@@ -1500,7 +1518,7 @@ function populateClientSettings(user) {
     document.getElementById("cs_password").value = "";
 }
 
-function handleUpdateProfile(e) {
+async function handleUpdateProfile(e) {
     e.preventDefault();
     const currentUser = OverheatingDB.getCurrentUser();
     if (!currentUser) return;
@@ -1509,10 +1527,7 @@ function handleUpdateProfile(e) {
     const newWa = document.getElementById("cs_wa").value.trim();
     const newPass = document.getElementById("cs_password").value;
 
-    if (!newName || !newWa) {
-        showToast("Validasi Gagal", "Nama lengkap dan nomor WhatsApp tidak boleh kosong.");
-        return;
-    }
+    if (!newName || !newWa) return;
     if (newPass && newPass.length < 6) {
         showToast("Validasi Gagal", "Password baru minimal harus 6 karakter.");
         return;
@@ -1524,22 +1539,21 @@ function handleUpdateProfile(e) {
 
     db.users[idx].full_name = newName;
     db.users[idx].whatsapp = newWa;
-    if (newPass) {
-        db.users[idx].password_hash = newPass;
-    }
+    if (newPass) db.users[idx].password_hash = newPass;
 
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderClientDashboard();
     showToast("Profil Diperbarui!", "Data akun member kamu berhasil disimpan.");
 }
 
 // ==========================================
-// ADMIN DASHBOARD ERP LOGIC (STEP 3)
+// 12. ADMIN DASHBOARD ERP LOGIC (STEP 3)
 // ==========================================
 let activeAdminTab = "bookings";
 let adminBookingFilter = "all";
 
-function openAdminDashboard() {
+async function openAdminDashboard() {
+    await syncFromCloud();
     const user = OverheatingDB.getCurrentUser();
     if (!user || user.role !== "admin") {
         showToast("Akses Ditolak", "Halaman ini khusus untuk Administrator.");
@@ -1557,7 +1571,7 @@ function closeAdminDashboard() {
     overlay.classList.add("hidden-safely");
     document.body.style.overflow = "";
     renderNavbarAuth();
-    renderServices(); // Refresh katalog halaman depan jika ada perubahan dari Admin
+    renderServices();
 }
 
 function switchAdminTab(tabName) {
@@ -1582,7 +1596,6 @@ function switchAdminTab(tabName) {
 function renderAdminDashboard() {
     const db = OverheatingDB.getDB();
 
-    // Update Top Quick Stats
     const activeCount = db.bookings.filter(b => b.status === "pending" || b.status === "proses").length;
     const doneCount = db.bookings.filter(b => b.status === "done").length;
     const memberCount = db.users.filter(u => u.role === "client").length;
@@ -1604,9 +1617,6 @@ function renderAdminDashboard() {
     lucide.createIcons();
 }
 
-// ------------------------------------------
-// TAB 1: KELOLA PESANAN & STATUS SERVIS
-// ------------------------------------------
 function setAdminBookingFilter(filter) {
     adminBookingFilter = filter;
     ["all", "pending", "proses", "done"].forEach(f => {
@@ -1663,7 +1673,6 @@ function renderAdminBookings(db) {
                         <div class="pt-1 text-gray-400 italic">Keluhan Client: "${escapeHTML(b.customer_notes)}"</div>
                     </div>
 
-                    <!-- Kontrol Update Status & Catatan Teknisi -->
                     <div class="space-y-2.5">
                         <div class="grid grid-cols-2 gap-2">
                             <div>
@@ -1708,7 +1717,7 @@ function renderAdminBookings(db) {
     }).join("");
 }
 
-function saveAdminBookingUpdate(bookingCode) {
+async function saveAdminBookingUpdate(bookingCode) {
     const db = OverheatingDB.getDB();
     const idx = db.bookings.findIndex(b => b.booking_code === bookingCode);
     if (idx === -1) return;
@@ -1726,9 +1735,7 @@ function saveAdminBookingUpdate(bookingCode) {
 
     let extraMsg = "";
 
-    // OTOMATISASI: Jika berubah dari UNPAID menjadi PAID (Lunas)
     if (prevPayStatus !== "paid" && newPayStatus === "paid") {
-        // 1. Catat ke Tabel F (finances) jika belum tercatat sebelumnya
         const alreadyInFinance = db.finances.some(f => f.booking_code === bookingCode);
         if (!alreadyInFinance) {
             db.finances.unshift({
@@ -1742,7 +1749,6 @@ function saveAdminBookingUpdate(bookingCode) {
             extraMsg += " Kas Pemasukan bertambah.";
         }
 
-        // 2. Tambahkan Poin ke Member di Tabel A (users) jika pesanan milik member
         if (booking.user_id && !booking.points_awarded) {
             const uIdx = db.users.findIndex(u => u.id === booking.user_id);
             if (uIdx !== -1) {
@@ -1754,7 +1760,7 @@ function saveAdminBookingUpdate(bookingCode) {
         }
     }
 
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
     showToast("Status Diperbarui!", `Booking ${bookingCode} disimpan.${extraMsg}`);
 }
@@ -1788,18 +1794,15 @@ Kamu juga bisa memantau status ini langsung dan mengecek Poin Member kamu di web
     window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
-function deleteBookingRecord(bookingCode) {
+async function deleteBookingRecord(bookingCode) {
     if (!confirm(`Hapus pesanan ${bookingCode} dari database?`)) return;
     const db = OverheatingDB.getDB();
     db.bookings = db.bookings.filter(b => b.booking_code !== bookingCode);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
     showToast("Pesanan Dihapus", `Tiket ${bookingCode} telah dihapus.`);
 }
 
-// ------------------------------------------
-// TAB 2: KELOLA MENU KATALOG (TABEL B: services)
-// ------------------------------------------
 function renderAdminCatalog(db) {
     const container = document.getElementById("adm_catalogList");
     container.innerHTML = db.services.map(s => `
@@ -1827,7 +1830,7 @@ function renderAdminCatalog(db) {
     `).join("");
 }
 
-function handleAdminAddService(e) {
+async function handleAdminAddService(e) {
     e.preventDefault();
     const name = document.getElementById("as_name").value.trim();
     const catId = document.getElementById("as_category").value;
@@ -1857,34 +1860,31 @@ function handleAdminAddService(e) {
 
     const db = OverheatingDB.getDB();
     db.services.push(newService);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
 
     document.getElementById("admAddServiceForm").reset();
     renderAdminDashboard();
     showToast("Layanan Ditambahkan!", `Menu "${name}" kini tampil di katalog.`);
 }
 
-function toggleServiceActive(serviceId) {
+async function toggleServiceActive(serviceId) {
     const db = OverheatingDB.getDB();
     const s = db.services.find(x => x.id === serviceId);
     if (!s) return;
     s.isActive = s.isActive === false ? true : false;
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
 }
 
-function deleteServiceItem(serviceId) {
+async function deleteServiceItem(serviceId) {
     if (!confirm("Hapus menu layanan ini secara permanen?")) return;
     const db = OverheatingDB.getDB();
     db.services = db.services.filter(x => x.id !== serviceId);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
     showToast("Menu Dihapus", "Layanan telah dihapus dari katalog.");
 }
 
-// ------------------------------------------
-// TAB 3: DATA MEMBER, POIN & KLAIM VOUCHER
-// ------------------------------------------
 function renderAdminUsers(db) {
     const tbody = document.getElementById("adm_usersTableBody");
     const clients = db.users.filter(u => u.role === "client");
@@ -1914,7 +1914,6 @@ function renderAdminUsers(db) {
         `;
     }).join("");
 
-    // Render Klaim Voucher / Hadiah
     const redContainer = document.getElementById("adm_redemptionsList");
     if (db.user_redemptions.length === 0) {
         redContainer.innerHTML = `<div class="col-span-full text-xs text-textSecondary">Belum ada riwayat klaim voucher dari member.</div>`;
@@ -1943,7 +1942,7 @@ function renderAdminUsers(db) {
     }).join("");
 }
 
-function adjustUserPoints(userId) {
+async function adjustUserPoints(userId) {
     const inputEl = document.getElementById(`adm_pt_${userId}`);
     const delta = parseInt(inputEl.value, 10);
     if (isNaN(delta) || delta === 0) {
@@ -1956,23 +1955,20 @@ function adjustUserPoints(userId) {
     if (!user) return;
 
     user.points = Math.max(0, user.points + delta);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
     showToast("Poin Diperbarui!", `Saldo poin ${user.full_name} sekarang: ${user.points} Poin.`);
 }
 
-function toggleRedemptionUsed(redId) {
+async function toggleRedemptionUsed(redId) {
     const db = OverheatingDB.getDB();
     const r = db.user_redemptions.find(x => x.id === redId);
     if (!r) return;
     r.is_used = !r.is_used;
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
 }
 
-// ------------------------------------------
-// TAB 4: LAPORAN KEUANGAN (TABEL F: finances)
-// ------------------------------------------
 function renderAdminFinances(db, totalIncome, totalExpense, netProfit) {
     document.getElementById("adm_finIncome").innerText = formatRp(totalIncome);
     document.getElementById("adm_finExpense").innerText = formatRp(totalExpense);
@@ -2012,7 +2008,7 @@ function renderAdminFinances(db, totalIncome, totalExpense, netProfit) {
     }).join("");
 }
 
-function handleAdminAddFinance(e) {
+async function handleAdminAddFinance(e) {
     e.preventDefault();
     const type = document.getElementById("af_type").value;
     const amount = parseInt(document.getElementById("af_amount").value, 10) || 0;
@@ -2030,24 +2026,57 @@ function handleAdminAddFinance(e) {
         transaction_date: new Date().toISOString()
     });
 
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     document.getElementById("admFinanceForm").reset();
     renderAdminDashboard();
     showToast("Catatan Kas Disimpan!", `${type === 'income' ? 'Pemasukan' : 'Pengeluaran'} sebesar ${formatRp(amount)} tercatat.`);
 }
 
-function deleteFinanceRecord(finId) {
+async function deleteFinanceRecord(finId) {
     const db = OverheatingDB.getDB();
     db.finances = db.finances.filter(f => f.id !== finId);
-    OverheatingDB.saveDB(db);
+    await OverheatingDB.saveDB(db);
     renderAdminDashboard();
 }
 
-function resetDatabaseToDefault() {
-    if (!confirm("Reset seluruh database simulasi ke kondisi awal?")) return;
-    localStorage.removeItem(DB_STORAGE_KEY);
-    OverheatingDB.init();
-    renderAdminDashboard();
-    renderServices();
-    showToast("Database Direset", "Seluruh data kembali ke pengaturan awal.");
+// ==========================================
+// 13. KEAMANAN AKUN ADMIN (UBAH USERNAME & PASSWORD)
+// ==========================================
+async function changeAdminCredentialsPrompt() {
+    const user = OverheatingDB.getCurrentUser();
+    if (!user || user.role !== "admin") {
+        showToast("Akses Ditolak", "Hanya Administrator yang bisa mengakses menu ini.");
+        return;
+    }
+
+    const newUsername = prompt("Masukkan Username Admin baru:", user.username);
+    if (newUsername === null || !newUsername.trim()) return;
+
+    const newPassword = prompt("Masukkan Password Admin baru (Minimal 6 karakter):");
+    if (newPassword === null) return;
+
+    if (newPassword.trim().length < 6) {
+        alert("Gagal: Password baru minimal harus 6 karakter!");
+        return;
+    }
+
+    const db = OverheatingDB.getDB();
+    let updated = false;
+
+    db.users.forEach(u => {
+        if (u.role === "admin") {
+            u.username = newUsername.trim().toLowerCase();
+            u.password_hash = newPassword.trim();
+            updated = true;
+        }
+    });
+
+    if (updated) {
+        await OverheatingDB.saveDB(db);
+        renderAdminDashboard();
+        showToast(
+            "Keamanan Diperbarui!",
+            `Username Admin sekarang: "${newUsername.trim().toLowerCase()}". Akun lama sudah tidak berlaku.`
+        );
+    }
 }

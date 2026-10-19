@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overheating Club.id | Premium cleaning Laptop</title>
+    <title>Overheating Club.id | Premium Laptop Service</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -110,10 +110,8 @@
                         <a href="#faq" class="hover:text-textPrimary transition-colors">Cara Booking</a>
                     </div>
                 </div>
-                <!-- Auth & CTA Dynamic Area (Diatur oleh JS) -->
-                <div id="navAuthArea" class="flex items-center gap-3">
-                    <!-- Di-render otomatis oleh renderNavbarAuth() di script.js -->
-                </div>
+                <!-- Auth & CTA Dynamic Area -->
+                <div id="navAuthArea" class="flex items-center gap-3"></div>
             </div>
         </div>
     </nav>
@@ -188,7 +186,7 @@
     <section id="ticketSection" class="py-24 bg-cardDark border-y border-borderWhite hidden-safely">
         <div class="max-w-3xl mx-auto px-4 text-center">
             <h2 class="text-2xl font-bold mb-2">Invoice & Tiket Booking</h2>
-            <p class="text-textSecondary mb-8 text-sm">Pesananmu sudah tercatat di database kami. Kirim ke WhatsApp admin untuk konfirmasi penyerahan unit.</p>
+            <p class="text-textSecondary mb-8 text-sm">Pesananmu sudah tercatat di sistem kami. Kirim ke WhatsApp admin untuk konfirmasi penyerahan unit.</p>
             
             <div id="ticketContainer" class="bg-bgDark border border-borderWhite p-6 md:p-8 rounded-lg text-left relative overflow-hidden mx-auto max-w-md shadow-2xl"></div>
             
@@ -260,7 +258,7 @@
     </footer>
 
     <!-- ==========================================
-         MODALS OVERLAYS
+         MODALS & FULL-SCREEN DASHBOARDS
          ========================================== -->
     
     <!-- 1. Detail Service Modal -->
@@ -278,7 +276,6 @@
             <h3 class="text-xl font-bold mb-1">Form Booking</h3>
             <p class="text-sm text-accentRed font-medium mb-4" id="formServiceName">Layanan: -</p>
             
-            <!-- Info Member Login / Non-Login -->
             <div id="bookingMemberNotice" class="mb-4 p-3 rounded bg-secondary/80 border border-borderWhite text-xs"></div>
 
             <form id="bookingForm" class="space-y-4" onsubmit="handleBookingSubmit(event)">
@@ -305,7 +302,6 @@
                     <div id="addonsList" class="space-y-2"></div>
                 </div>
 
-                <!-- Pilihan Voucher Member (Muncul jika user login & punya voucher) -->
                 <div id="voucherSelectionContainer" class="hidden-safely pt-2">
                     <label class="block text-xs text-gold mb-1 font-semibold flex items-center gap-1">
                         <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Gunakan Voucher Kamu
@@ -342,12 +338,11 @@
         </div>
     </div>
 
-    <!-- 3. Auth Modal (Login & Register) -->
+    <!-- 3. Auth Modal (Login & Register Bersih Tanpa Bocoran Admin) -->
     <div id="authModalOverlay" onclick="if(event.target === this) closeAuthModal()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden-safely flex items-end md:items-center justify-center transition-opacity duration-300 opacity-0">
         <div id="authModal" class="bg-cardDark border border-borderWhite w-full md:w-[420px] rounded-t-xl md:rounded-xl p-6 relative bottom-sheet">
             <button onclick="closeAuthModal()" class="absolute right-4 top-4 text-textSecondary hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             
-            <!-- Tabs Login / Register -->
             <div class="flex border-b border-borderWhite mb-6">
                 <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-sm font-bold border-b-2 border-accentRed text-textPrimary transition-all">
                     Masuk (Login)
@@ -357,7 +352,6 @@
                 </button>
             </div>
 
-            <!-- Alert Box inside Auth -->
             <div id="authAlert" class="hidden-safely mb-4 p-3 rounded text-xs border"></div>
 
             <!-- LOGIN FORM -->
@@ -373,19 +367,6 @@
                 <button type="submit" class="w-full bg-accentRed text-white py-2.5 rounded font-semibold hover:bg-darkRed transition-colors">
                     Masuk ke Akun
                 </button>
-
-                <!-- Demo Credentials Helper untuk Testing -->
-                <div class="mt-4 pt-4 border-t border-borderWhite text-[11px] text-textSecondary space-y-1">
-                    <div class="font-semibold text-textPrimary mb-1">Akun Demo (Klik untuk isi otomatis):</div>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="fillDemoAuth('admin', 'admin123')" class="flex-1 bg-secondary border border-borderWhite hover:border-accentRed py-1.5 px-2 rounded text-left">
-                            <span class="text-accentRed font-bold">Admin:</span> admin / admin123
-                        </button>
-                        <button type="button" onclick="fillDemoAuth('abdan', '123456')" class="flex-1 bg-secondary border border-borderWhite hover:border-gold py-1.5 px-2 rounded text-left">
-                            <span class="text-gold font-bold">Client:</span> abdan / 123456
-                        </button>
-                    </div>
-                </div>
             </form>
 
             <!-- REGISTER FORM -->
@@ -413,20 +394,10 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-cardDark border border-borderWhite text-white px-4 py-3 rounded shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-[70] flex items-center gap-3">
-        <i data-lucide="check-circle" class="w-5 h-5 text-[#25D366]"></i>
-        <div>
-            <div id="toastTitle" class="font-bold text-sm">Berhasil</div>
-            <div id="toastDesc" class="text-xs text-textSecondary">Data telah disimpan.</div>
-        </div>
-    </div>
-
-    <!-- 4. Client Dashboard Modal (Full-Screen App Overlay) -->
+    <!-- 4. Client Dashboard Modal (Member Area) -->
     <div id="clientDashboardOverlay" class="fixed inset-0 bg-bgDark/95 backdrop-blur-md z-50 hidden-safely overflow-y-auto">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex flex-col">
             
-            <!-- Dashboard Header -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-borderWhite">
                 <div class="flex items-center gap-3">
                     <span class="seal text-lg px-2 py-1">修</span>
@@ -449,7 +420,6 @@
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
             <div class="flex gap-2 overflow-x-auto py-4 border-b border-borderWhite scrollbar-hide">
                 <button onclick="switchClientTab('status')" id="cTabBtn_status" class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-accentRed text-white transition-all whitespace-nowrap">
                     <i data-lucide="activity" class="w-4 h-4"></i> Status Laptop (Live Tracker)
@@ -465,10 +435,8 @@
                 </button>
             </div>
 
-            <!-- Tab Contents Container -->
             <div class="py-8 flex-grow">
-                
-                <!-- TAB 1: STATUS LAPTOP (PENDING, PROSES, DONE) -->
+                <!-- TAB 1: STATUS LAPTOP -->
                 <div id="cTabContent_status" class="space-y-6 fade-in">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
@@ -479,29 +447,20 @@
                             + Buat Booking Baru
                         </button>
                     </div>
-                    <div id="cd_bookingsList" class="space-y-4">
-                        <!-- Rendered via JS -->
-                    </div>
+                    <div id="cd_bookingsList" class="space-y-4"></div>
                 </div>
 
                 <!-- TAB 2: TUKAR POIN & VOUCHER -->
                 <div id="cTabContent_rewards" class="hidden-safely space-y-10 fade-in">
-                    <!-- Voucher / Hadiah Milik User -->
                     <div>
                         <h3 class="text-xl font-bold mb-1">Dompet Voucher & Hadiah Saya</h3>
                         <p class="text-sm text-textSecondary mb-4">Gunakan kode voucher diskon saat mengisi Form Booking, atau tunjukkan kode hadiah ke Admin.</p>
-                        <div id="cd_myVouchersList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Rendered via JS -->
-                        </div>
+                        <div id="cd_myVouchersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-
-                    <!-- Etalase Penukaran Poin -->
                     <div class="pt-6 border-t border-borderWhite">
                         <h3 class="text-xl font-bold mb-1">Katalog Penukaran Poin</h3>
                         <p class="text-sm text-textSecondary mb-6">Tukarkan poin hasil servis laptopmu dengan potongan harga atau merchandise eksklusif.</p>
-                        <div id="cd_rewardsCatalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            <!-- Rendered via JS -->
-                        </div>
+                        <div id="cd_rewardsCatalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                     </div>
                 </div>
 
@@ -511,16 +470,13 @@
                         <h3 class="text-xl font-bold mb-1">Pesan Layanan Servis</h3>
                         <p class="text-sm text-textSecondary">Pilih layanan di bawah ini untuk langsung membuat booking dengan akun membermu.</p>
                     </div>
-                    <div id="cd_quickCatalog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Rendered via JS -->
-                    </div>
+                    <div id="cd_quickCatalog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
 
                 <!-- TAB 4: PENGATURAN AKUN -->
                 <div id="cTabContent_settings" class="hidden-safely max-w-xl fade-in">
                     <h3 class="text-xl font-bold mb-1">Pengaturan Profil & Keamanan</h3>
                     <p class="text-sm text-textSecondary mb-6">Perbarui data diri atau kata sandi akun member Overheating Club kamu.</p>
-                    
                     <form id="clientSettingsForm" onsubmit="handleUpdateProfile(event)" class="bg-cardDark border border-borderWhite rounded-xl p-6 space-y-4">
                         <div>
                             <label class="block text-xs text-textSecondary mb-1">Username (Tidak dapat diubah)</label>
@@ -543,7 +499,6 @@
                         </button>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
@@ -563,12 +518,15 @@
                         <h2 class="text-2xl font-bold">Panel Kendali Overheating Club</h2>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="resetDatabaseToDefault()" class="bg-secondary border border-borderWhite hover:border-red-500 text-textSecondary hover:text-red-400 px-3 py-2 rounded-lg text-xs font-medium transition-colors" title="Reset data simulasi ke awal">
-                        Reset Data Demo
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="syncFromCloud(); showToast('Sinkronisasi', 'Mengambil data terbaru dari Cloud...');" class="bg-secondary border border-borderWhite hover:border-emerald-400 text-emerald-400 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Data Cloud
+                    </button>
+                    <button onclick="changeAdminCredentialsPrompt()" class="bg-secondary border border-borderWhite hover:border-gold text-gold px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                        <i data-lucide="key-round" class="w-3.5 h-3.5"></i> Ubah Sandi Admin
                     </button>
                     <button onclick="closeAdminDashboard()" class="bg-textPrimary text-bgDark hover:bg-gray-200 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
-                        <i data-lucide="external-link" class="w-4 h-4"></i> Lihat Tampilan Web
+                        <i data-lucide="external-link" class="w-4 h-4"></i> Lihat Web
                     </button>
                 </div>
             </div>
@@ -611,8 +569,7 @@
 
             <!-- Admin Tab Contents -->
             <div class="py-8 flex-grow">
-
-                <!-- TAB 1: MANAJEMEN PESANAN & STATUS (PENDING, PROSES, DONE) -->
+                <!-- TAB 1: MANAJEMEN PESANAN -->
                 <div id="aTabContent_bookings" class="space-y-6 fade-in">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
@@ -626,20 +583,15 @@
                             <button onclick="setAdminBookingFilter('done')" id="admFilter_done" class="px-3 py-1.5 rounded bg-cardDark border border-borderWhite text-textSecondary">Done</button>
                         </div>
                     </div>
-
-                    <div id="adm_bookingsContainer" class="space-y-4">
-                        <!-- Rendered via JS -->
-                    </div>
+                    <div id="adm_bookingsContainer" class="space-y-4"></div>
                 </div>
 
                 <!-- TAB 2: KELOLA MENU KATALOG -->
                 <div id="aTabContent_catalog" class="hidden-safely grid grid-cols-1 lg:grid-cols-3 gap-8 fade-in">
-                    <!-- Form Tambah Layanan Baru -->
                     <div class="lg:col-span-1">
                         <div class="bg-cardDark border border-borderWhite rounded-xl p-6 sticky top-6">
                             <h3 class="text-lg font-bold mb-1">Tambah Layanan Baru</h3>
                             <p class="text-xs text-textSecondary mb-4">Menu yang ditambahkan akan langsung muncul di halaman depan katalog.</p>
-                            
                             <form id="admAddServiceForm" onsubmit="handleAdminAddService(event)" class="space-y-3">
                                 <div>
                                     <label class="block text-xs text-textSecondary mb-1">Nama Layanan *</label>
@@ -684,13 +636,9 @@
                             </form>
                         </div>
                     </div>
-
-                    <!-- Daftar Layanan Saat Ini -->
                     <div class="lg:col-span-2 space-y-4">
                         <h3 class="text-lg font-bold">Daftar Layanan Katalog Aktif</h3>
-                        <div id="adm_catalogList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Rendered via JS -->
-                        </div>
+                        <div id="adm_catalogList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                     </div>
                 </div>
 
@@ -710,26 +658,19 @@
                                         <th class="py-3.5 px-4 text-right">Kelola Poin Manual</th>
                                     </tr>
                                 </thead>
-                                <tbody id="adm_usersTableBody" class="divide-y divide-borderWhite/60">
-                                    <!-- Rendered via JS -->
-                                </tbody>
+                                <tbody id="adm_usersTableBody" class="divide-y divide-borderWhite/60"></tbody>
                             </table>
                         </div>
                     </div>
-
-                    <!-- Daftar Klaim Voucher/Hadiah Member -->
                     <div class="pt-6 border-t border-borderWhite">
                         <h3 class="text-xl font-bold mb-1">Riwayat Penukaran Voucher & Hadiah Member</h3>
                         <p class="text-xs text-textSecondary mb-4">Verifikasi kode hadiah fisik atau voucher yang telah ditukarkan oleh pelanggan.</p>
-                        <div id="adm_redemptionsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Rendered via JS -->
-                        </div>
+                        <div id="adm_redemptionsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                     </div>
                 </div>
 
-                <!-- TAB 4: LAPORAN KEUANGAN (INCOME & EXPENSE) -->
+                <!-- TAB 4: LAPORAN KEUANGAN -->
                 <div id="aTabContent_finances" class="hidden-safely space-y-8 fade-in">
-                    <!-- Ringkasan Keuangan -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-cardDark border border-emerald-500/30 p-5 rounded-xl">
                             <div class="text-xs text-textSecondary uppercase tracking-wider mb-1">Total Pemasukan (Income)</div>
@@ -746,12 +687,10 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Form Catat Kas Manual -->
                         <div class="lg:col-span-1">
                             <div class="bg-cardDark border border-borderWhite rounded-xl p-6">
                                 <h3 class="text-lg font-bold mb-1">Catat Transaksi Kas</h3>
                                 <p class="text-xs text-textSecondary mb-4">Catat pengeluaran beli bahan (Arctic MX-4, SSD, alat) atau pemasukan di luar web.</p>
-                                
                                 <form id="admFinanceForm" onsubmit="handleAdminAddFinance(event)" class="space-y-3">
                                     <div>
                                         <label class="block text-xs text-textSecondary mb-1">Jenis Transaksi *</label>
@@ -774,8 +713,6 @@
                                 </form>
                             </div>
                         </div>
-
-                        <!-- Tabel Buku Kas -->
                         <div class="lg:col-span-2">
                             <h3 class="text-lg font-bold mb-3">Buku Kas & Riwayat Mutasi</h3>
                             <div class="overflow-x-auto bg-cardDark border border-borderWhite rounded-xl">
@@ -789,16 +726,22 @@
                                             <th class="py-3 px-4 text-right">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="adm_financesTableBody" class="divide-y divide-borderWhite/60">
-                                        <!-- Rendered via JS -->
-                                    </tbody>
+                                    <tbody id="adm_financesTableBody" class="divide-y divide-borderWhite/60"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-cardDark border border-borderWhite text-white px-4 py-3 rounded shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-[70] flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-[#25D366]"></i>
+        <div>
+            <div id="toastTitle" class="font-bold text-sm">Berhasil</div>
+            <div id="toastDesc" class="text-xs text-textSecondary">Data telah disimpan.</div>
         </div>
     </div>
 
